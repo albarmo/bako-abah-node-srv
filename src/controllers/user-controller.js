@@ -1,6 +1,7 @@
 const { User } = require("../../models");
-const { comparePassword, hashPassword } = require("../helpers/bcrypt");
+const { comparePassword } = require("../helpers/bcrypt");
 const { generateAccessToken } = require("../helpers/jwt");
+const { validate } = require("uuid");
 
 class UserController {
     static async getCurrentUser(req, res, next) {
@@ -85,6 +86,12 @@ class UserController {
 
     static async updateUser(req, res, next) {
         const { id } = req.params;
+        if (!validate(id)) {
+            return res
+                .status(400)
+                .json({ status: 400, message: "Invalid UUID Format" });
+        }
+
         const { first_name, last_name, email, phone_number } = req.body;
 
         try {
@@ -124,6 +131,12 @@ class UserController {
 
     static async deleteUser(req, res, next) {
         const { id } = req.params;
+        if (!validate(id)) {
+            return res
+                .status(400)
+                .json({ status: 400, message: "Invalid UUID Format" });
+        }
+
         try {
             const deleteUser = await User.destroy({
                 where: { id: id },

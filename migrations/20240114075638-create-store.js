@@ -10,6 +10,15 @@ module.exports = {
             },
             name: {
                 type: Sequelize.STRING,
+                unique: true,
+                allowNull: false,
+            },
+            operational_hour: {
+                type: Sequelize.STRING,
+                allowNull: false,
+            },
+            address: {
+                type: Sequelize.STRING,
                 allowNull: false,
             },
             map_url: {
