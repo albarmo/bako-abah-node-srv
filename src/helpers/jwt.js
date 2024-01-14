@@ -5,7 +5,7 @@ const generateAccessToken = (payload) => {
 };
 
 const verifyToken = (accessToken) => {
-    return jwt.verify(accessToken, "146155");
+    return jwt.verify(accessToken, process.env.JWT_SECRET);
 };
 
 module.exports = {

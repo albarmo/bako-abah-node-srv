@@ -4,8 +4,7 @@ const { generateAccessToken } = require("../helpers/jwt");
 
 class UserController {
     static async getCurrentUser(req, res, next) {
-        const { id, email } = req.userData;
-
+        const { id } = req.userData;
         let data = await User.findOne({ where: { id: id } });
         try {
             if (data) {
@@ -18,7 +17,7 @@ class UserController {
         }
     }
 
-    static async list(req, res, next) {
+    static async getUserList(req, res, next) {
         let data = await User.findAll();
         try {
             if (data) {
@@ -32,46 +31,40 @@ class UserController {
     }
 
     static async register(req, res, next) {
-        let inputDataRegister = {
-            fullname: req.body.fullname,
-            email: req.body.email,
-            phone: req.body.phone,
-            type: req.body.type,
-            address: req.body.address,
-            region: req.body.region,
-            gender: req.body.gender,
-            password: req.body.password,
-        };
+        const {
+            first_name,
+            last_name,
+            email,
+            phone_number,
+            password,
+        } = req.body;
 
-        User.create(inputDataRegister, {})
-            .then((data) => {
-                return res.status(201).json({ data });
-            })
-            .catch((error) => {
-                next(error);
+        try {
+            const response = await User.create({
+                first_name,
+                last_name,
+                email,
+                phone_number,
+                password,
             });
+            return res.status(201).json(response);
+        } catch (error) {
+            return next(error);
+        }
     }
 
     static async login(req, res, next) {
-        const inputLogin = {
-            email: req.body.email,
-            password: req.body.password,
-        };
-
+        const { email, password } = req.body;
         const user = await User.findOne({
-            where: { email: inputLogin.email },
+            where: { email: email },
         });
-
-        const UserId = user.dataValues.id;
 
         try {
             if (!user) {
                 return res
                     .status(400)
-                    .json({ message: "failed, user not registered" });
-            } else if (
-                !comparePassword(inputLogin.password, user.dataValues.password)
-            ) {
+                    .json({ message: "Failed, user not registered" });
+            } else if (!comparePassword(password, user.dataValues.password)) {
                 return res
                     .status(401)
                     .json({ msg: "email or password wrong!" });
@@ -80,6 +73,8 @@ class UserController {
                     id: user.id,
                     email: user.email,
                     password: user.password,
+                    phone_number: user.phone_number,
+                    role: user.role,
                 });
                 return res.status(200).json({ access_token: token });
             }
@@ -90,15 +85,7 @@ class UserController {
 
     static async updateUser(req, res, next) {
         const { id } = req.params;
-        const inputDataUpdate = {
-            fullname: req.body.fullname,
-            email: req.body.email,
-            phone: req.body.phone,
-            type: req.body.type,
-            address: req.body.address,
-            region: req.body.region,
-            gender: req.body.gender,
-        };
+        const { first_name, last_name, email, phone_number } = req.body;
 
         try {
             const userDataById = await User.findOne({
@@ -110,12 +97,20 @@ class UserController {
             });
 
             if (userDataById) {
-                const updateUser = await User.update(inputDataUpdate, {
-                    where: {
-                        id: id,
+                const updateUser = await User.update(
+                    {
+                        first_name,
+                        last_name,
+                        email,
+                        phone_number,
                     },
-                    returning: true,
-                });
+                    {
+                        where: {
+                            id: id,
+                        },
+                        returning: true,
+                    }
+                );
                 if (updateUser) {
                     return res.status(200).json({ updateUser });
                 }

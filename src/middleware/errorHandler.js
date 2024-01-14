@@ -1,48 +1,49 @@
 function errorHandler(err, req, res, next) {
-  let msg = '';
-  let code = '';
+    let msg = [];
+    let code = "";
 
-  switch (err.name) {
-    case 'SequelizeValidationError':
-      let errors = [];
-      err.errors.forEach((el) => {
-        errors.push(el.message);
-      });
-      code = 400;
-      msg = `${errors}`;
-      break;
+    switch (err.name) {
+        case "SequelizeValidationError":
+            const validationError = [];
+            err.errors.forEach((el) => {
+                validationError.push(el.message);
+            });
+            code = 400;
+            msg.push(...validationError);
+            break;
 
-    case 'SequelizeUniqueConstraintError':
-      let errors2 = [];
-      err.errors.forEach((el) => {
-        errors2.push(el.message);
-      });
-      code = 400;
-      msg = `${errors2}`;
-      break;
+        case "SequelizeUniqueConstraintError":
+            const uniqueConstraintError = [];
+            err.errors.forEach((el) => {
+                uniqueConstraintError.push(el.message);
+            });
+            code = 400;
+            msg.push(...uniqueConstraintError);
+            break;
 
-    case 'Wrong Email or Password':
-      code = 404;
-      msg = 'Wrong Email or Password';
-      break;
+        case "Wrong Email or Password":
+            code = 404;
+            msg = "Wrong Email or Password";
+            break;
 
-    case 'Unauthenticated':
-      code = 401;
-      msg = 'Unauthenticated. You need to login first';
-      break;
+        case "Unauthenticated":
+            code = 401;
+            msg = "Unauthenticated. You need to login first";
+            break;
 
-    case 'Not Authorized':
-      code = 403;
-      msg = 'You are not Authorized';
-      break;
+        case "Not Authorized":
+            code = 403;
+            msg.push("Unauthenticated. You need to login first");
+            msg = "You are not Authorized";
+            break;
 
-    default:
-      code = 500;
-      msg = err.message;
-      break;
-  }
+        default:
+            code = 500;
+            msg = err.message;
+            break;
+    }
 
-  return res.status(code).json({ msg });
+    return res.status(code).json({ msg });
 }
 
 module.exports = errorHandler;
