@@ -1,8 +1,10 @@
 # BAKO_ABAH-server
 
-Backend for Bako Abah Store, this app using postgres as database.
+Backend for Bako Abah Store, this app build using NodeJS + Express.
 
 ## How to run development mode
 
-- start : `npm start`
-- test : `npm test`
+- 1. `npm install`
+- 2. `npm start`
+
+
