@@ -15,16 +15,39 @@ module.exports = (sequelize, DataTypes) => {
     }
     Cart.init(
         {
-            user_id: DataTypes.UUID,
+            user_id: {
+                type: DataTypes.UUID,
+                allowNull: false,
+                validate: {
+                    notEmpty: {
+                        args: true,
+                        msg: "Field user_id name cant be empty",
+                    },
+                },
+            },
             shipping_id: DataTypes.UUID,
             subtotal: DataTypes.INTEGER,
             discount: DataTypes.INTEGER,
             total_weight: DataTypes.INTEGER,
             grand_total: DataTypes.INTEGER,
-            status: DataTypes.STRING,
+            status: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                validate: {
+                    notEmpty: {
+                        args: true,
+                        msg: "Field status name cant be empty",
+                    },
+                },
+            },
             shipping_price: DataTypes.INTEGER,
         },
         {
+            hooks: {
+                beforeCreate(instance) {
+                    instance.id = uuidv4();
+                },
+            },
             sequelize,
             modelName: "Cart",
         }
