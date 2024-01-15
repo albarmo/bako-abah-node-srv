@@ -3,10 +3,12 @@ const userRouter = require("./user-router");
 const storeRouter = require("./store-router");
 const categoryRouter = require("./category-router");
 const productRouter = require("./product-router");
+const shippingAddressRouter = require("./shipping-address-router");
 
 router.use("/user", userRouter);
 router.use("/store", storeRouter);
 router.use("/category", categoryRouter);
 router.use("/product", productRouter);
+router.use("/shipping-address", shippingAddressRouter);
 
 module.exports = router;
