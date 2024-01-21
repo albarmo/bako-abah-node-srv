@@ -9,9 +9,15 @@ module.exports = (sequelize, DataTypes) => {
                 targetKey: "id",
                 foreignKey: "user_id",
             });
-            Transaction.hasOne(models.Cart, {
+            Transaction.belongsTo(models.Cart, {
+                as: "origin",
                 targetKey: "id",
                 foreignKey: "cart_id",
+            });
+            Transaction.belongsTo(models.Store, {
+                as: "store",
+                targetKey: "id",
+                foreignKey: "store_in_charge",
             });
         }
     }

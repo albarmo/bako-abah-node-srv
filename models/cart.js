@@ -10,16 +10,18 @@ module.exports = (sequelize, DataTypes) => {
                 foreignKey: "user_id",
             });
             Cart.hasMany(models.CartItem, {
-                sourceKey: "id",
-                foreignKey: "cart_id",
-            });
-            Cart.hasOne(models.Transaction, {
+                as: "items",
                 sourceKey: "id",
                 foreignKey: "cart_id",
             });
             Cart.hasOne(models.ShippingAddres, {
                 sourceKey: "id",
-                foreignKey: "shipping_id",
+                foreignKey: "id",
+            });
+            Cart.hasMany(models.Transaction, {
+                as: "origin",
+                sourceKey: "id",
+                foreignKey: "cart_id",
             });
         }
     }

@@ -8,8 +8,10 @@ module.exports = (sequelize, DataTypes) => {
             CartItem.belongsTo(models.Cart, {
                 targetKey: "id",
                 foreignKey: "cart_id",
+                as: "items",
             });
-            CartItem.hasOne(models.Product, {
+            CartItem.belongsTo(models.Product, {
+                as: "product",
                 targetKey: "id",
                 foreignKey: "product_id",
             });

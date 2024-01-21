@@ -1,4 +1,4 @@
-const { Transaction } = require("../../models");
+const { Transaction, Cart, Store } = require("../../models");
 const { validate } = require("uuid");
 const uploader = require("../helpers/uploader");
 
@@ -40,7 +40,19 @@ class TransactionController {
 
     static async getAllTransaction(req, res, next) {
         try {
-            let data = await Transaction.findAll();
+            let data = await Transaction.findAll({
+                include: [
+                    {
+                        model: Cart,
+                        as: "origin",
+                    },
+                    {
+                        model: Store,
+                        as: "store",
+                        attributes: ["id", "name"],
+                    },
+                ],
+            });
             if (data) {
                 return res
                     .status(200)

@@ -1,4 +1,4 @@
-const { ShippingAddres } = require("../../models");
+const { ShippingAddres, User } = require("../../models");
 const { validate } = require("uuid");
 
 class ShippingAddresController {
@@ -34,7 +34,13 @@ class ShippingAddresController {
 
     static async getAllShippingAddress(req, res, next) {
         try {
-            let data = await ShippingAddres.findAll();
+            let data = await ShippingAddres.findAll({
+                include: {
+                    model: User,
+                    as: "address_owner",
+                    attributes: ["id", "first_name", "last_name"],
+                },
+            });
             if (data) {
                 return res
                     .status(200)

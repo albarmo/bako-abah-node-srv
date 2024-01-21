@@ -1,4 +1,5 @@
-const { Category } = require("../../models");
+const { Category, Product, Sequelize } = require("../../models");
+const { Op } = Sequelize;
 const { validate } = require("uuid");
 
 class CategoryController {
@@ -19,8 +20,57 @@ class CategoryController {
     }
 
     static async getCategoryList(req, res, next) {
+        let { filter, sort, page } = req.query;
+        const paramQuerySQL = {};
+        let limit;
+        let offset;
+
+        console.log(filter);
+
+        // filtering by category
+        if (filter !== "" && typeof filter !== "undefined") {
+            paramQuerySQL.where = {
+                name: { [Op.iLike]: `%${filter}%` },
+            };
+        }
+        // sorting
+        if (sort !== "" && typeof sort !== "undefined") {
+            let query;
+            if (sort.charAt(0) !== "-") {
+                query = [[sort, "ASC"]];
+            } else {
+                query = [[sort.replace("-", ""), "DESC"]];
+            }
+
+            paramQuerySQL.order = query;
+        }
+
+        // pagination
+        if (page !== "" && typeof page !== "undefined") {
+            if (page.size !== "" && typeof page.size !== "undefined") {
+                limit = page.size;
+                paramQuerySQL.limit = limit;
+            }
+
+            if (page.number !== "" && typeof page.number !== "undefined") {
+                offset = page.number * limit - limit;
+                paramQuerySQL.offset = offset;
+            }
+        } else {
+            limit = 5;
+            offset = 0;
+            paramQuerySQL.limit = limit;
+            paramQuerySQL.offset = offset;
+        }
+
         try {
-            let data = await Category.findAll();
+            let data = await Category.findAll({
+                ...paramQuerySQL,
+                include: {
+                    model: Product,
+                    as: "products",
+                },
+            });
             if (data) {
                 return res
                     .status(200)

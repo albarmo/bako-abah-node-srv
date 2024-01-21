@@ -1,4 +1,4 @@
-const { CartItem } = require("../../models");
+const { CartItem, Product } = require("../../models");
 const { validate } = require("uuid");
 
 class CartItemController {
@@ -22,7 +22,12 @@ class CartItemController {
 
     static async getAllCart(req, res, next) {
         try {
-            let data = await CartItem.findAll();
+            let data = await CartItem.findAll({
+                include: {
+                    model: Product,
+                    as: "product",
+                },
+            });
             if (data) {
                 return res
                     .status(200)

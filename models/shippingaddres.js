@@ -6,12 +6,14 @@ module.exports = (sequelize, DataTypes) => {
     class ShippingAddres extends Model {
         static associate(models) {
             ShippingAddres.belongsTo(models.User, {
+                as: "address_owner",
                 targetKey: "id",
                 foreignKey: "user_id",
             });
-            ShippingAddres.belongsTo(models.Cart, {
+            ShippingAddres.belongsToMany(models.Cart, {
                 targetKey: "id",
-                foreignKey: "user_id",
+                foreignKey: "id",
+                through: "shipping_id",
             });
         }
     }

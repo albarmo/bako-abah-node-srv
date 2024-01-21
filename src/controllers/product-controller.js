@@ -1,44 +1,9 @@
-const { Product } = require("../../models");
+const { Product, Category, Sequelize } = require("../../models");
 const { validate } = require("uuid");
 const uploader = require("../helpers/uploader");
+const { Op } = Sequelize;
 
 class ProductController {
-    static create(req, res, next) {
-        try {
-            const upload = uploader("PRODUCT_IMAGE").fields([
-                { name: "images" },
-            ]);
-            upload(req, res, (err) => {
-                if (err) {
-                    return res.status(500).json({ msg: err });
-                }
-                const { images } = req.files;
-                const imagePath = images ? "/" + images[0].filename : null;
-
-                let inputData = {
-                    title: req.body.title,
-                    color: req.body.color,
-                    size: req.body.size,
-                    description: req.body.description,
-                    stock: req.body.stock,
-                    images: imagePath,
-                    price: req.body.price,
-                    weight: req.body.weight,
-                    CollectionId: req.body.CollectionId,
-                };
-
-                Product.create(inputData)
-                    .then((data) => {
-                        return res.status(201).json({ data });
-                    })
-                    .catch((error) => {
-                        return res.status(500).json({ message: error });
-                    });
-            });
-        } catch (error) {
-            next(error);
-        }
-    }
     static async createProduct(req, res, next) {
         const upload = uploader("PRODUCT_IMAGE").fields([{ name: "image" }]);
         try {
@@ -82,8 +47,56 @@ class ProductController {
     }
 
     static async getProductList(req, res, next) {
+        let { filter, sort, page } = req.query;
+        const paramQuerySQL = {};
+        let limit;
+        let offset;
+
+        // filtering by category
+        if (filter !== "" && typeof filter !== "undefined") {
+            paramQuerySQL.where = {
+                name: { [Op.iLike]: `%${filter}%` },
+            };
+        }
+        // sorting
+        if (sort !== "" && typeof sort !== "undefined") {
+            let query;
+            if (sort.charAt(0) !== "-") {
+                query = [[sort, "ASC"]];
+            } else {
+                query = [[sort.replace("-", ""), "DESC"]];
+            }
+
+            paramQuerySQL.order = query;
+        }
+
+        // pagination
+        if (page !== "" && typeof page !== "undefined") {
+            if (page.size !== "" && typeof page.size !== "undefined") {
+                limit = page.size;
+                paramQuerySQL.limit = limit;
+            }
+
+            if (page.number !== "" && typeof page.number !== "undefined") {
+                offset = page.number * limit - limit;
+                paramQuerySQL.offset = offset;
+            }
+        } else {
+            limit = 5;
+            offset = 0;
+            paramQuerySQL.limit = limit;
+            paramQuerySQL.offset = offset;
+        }
+
         try {
-            let data = await Product.findAll();
+            let data = await Product.findAll({
+                ...paramQuerySQL,
+                include: {
+                    model: Category,
+                    as: "category",
+                    attributes: ["id", "name"],
+                },
+            });
             if (data) {
                 return res
                     .status(200)

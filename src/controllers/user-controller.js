@@ -1,7 +1,8 @@
-const { User } = require("../../models");
+const { User, Sequelize } = require("../../models");
+
+const { validate } = require("uuid");
 const { comparePassword } = require("../helpers/bcrypt");
 const { generateAccessToken } = require("../helpers/jwt");
-const { validate } = require("uuid");
 
 class UserController {
     static async getCurrentUser(req, res, next) {
@@ -19,8 +20,50 @@ class UserController {
     }
 
     static async getUserList(req, res, next) {
-        let data = await User.findAll();
+        let { role, sort, page } = req.query;
+        const paramQuerySQL = {};
+        let limit;
+        let offset;
+
+        // filtering
+        if (role !== "" && typeof role !== "undefined") {
+            paramQuerySQL.where = {
+                role: role,
+            };
+        }
+
+        // sorting
+        if (sort !== "" && typeof sort !== "undefined") {
+            let query;
+            if (sort.charAt(0) !== "-") {
+                query = [[sort, "ASC"]];
+            } else {
+                query = [[sort.replace("-", ""), "DESC"]];
+            }
+
+            paramQuerySQL.order = query;
+        }
+
+        // pagination
+        if (page !== "" && typeof page !== "undefined") {
+            if (page.size !== "" && typeof page.size !== "undefined") {
+                limit = page.size;
+                paramQuerySQL.limit = limit;
+            }
+
+            if (page.number !== "" && typeof page.number !== "undefined") {
+                offset = page.number * limit - limit;
+                paramQuerySQL.offset = offset;
+            }
+        } else {
+            limit = 5;
+            offset = 0;
+            paramQuerySQL.limit = limit;
+            paramQuerySQL.offset = offset;
+        }
+
         try {
+            let data = await User.findAll(paramQuerySQL);
             if (data) {
                 return res.status(200).json({ users: data });
             } else {
@@ -61,7 +104,6 @@ class UserController {
         });
 
         try {
-            console.log(user);
             if (!user) {
                 return res
                     .status(400)
@@ -81,7 +123,6 @@ class UserController {
                 return res.status(200).json({ access_token: token });
             }
         } catch (error) {
-            console.log(error);
             next(error);
         }
     }
