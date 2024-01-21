@@ -57,10 +57,10 @@ class TransactionController {
     }
 
     static async getUserTransactionHistory(req, res, next) {
-        const { userId } = req.params;
+        const { user_id } = req.params;
         try {
             let data = await Transaction.findAll({
-                where: { UserId: userId },
+                where: { user_id: user_id },
             });
             if (data) {
                 return res

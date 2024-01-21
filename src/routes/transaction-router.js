@@ -4,12 +4,12 @@ const { authorization, authentification } = require("../middleware/Auth");
 
 transactionRouter.use(authentification);
 transactionRouter.post("/", transactionController.createTransaction);
+transactionRouter.get("/:id", transactionController.getTransactionDetail);
 transactionRouter.get(
-    "/:userId",
+    "/history/:user_id",
     transactionController.getUserTransactionHistory
 );
-transactionRouter.get("/:id", transactionController.getTransactionDetail);
-transactionRouter.put("/:id", transactionController.uploadProofOfPayment);
+transactionRouter.patch("/:id", transactionController.uploadProofOfPayment);
 
 transactionRouter.use(authorization);
 transactionRouter.get("/", transactionController.getAllTransaction);

@@ -61,6 +61,7 @@ class UserController {
         });
 
         try {
+            console.log(user);
             if (!user) {
                 return res
                     .status(400)
@@ -80,6 +81,7 @@ class UserController {
                 return res.status(200).json({ access_token: token });
             }
         } catch (error) {
+            console.log(error);
             next(error);
         }
     }
