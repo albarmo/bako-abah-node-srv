@@ -30,7 +30,7 @@ module.exports = {
                 allowNull: false,
             },
             role: {
-                type: DataTypes.STRING,
+                type: Sequelize.STRING,
                 allowNull: false,
             },
             createdAt: {
