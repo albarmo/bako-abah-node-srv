@@ -4,13 +4,23 @@ const { v4: uuidv4 } = require("uuid");
 
 module.exports = (sequelize, DataTypes) => {
     class Cart extends Model {
-        /**
-         * Helper method for defining associations.
-         * This method is not a part of Sequelize lifecycle.
-         * The `models/index` file will call this method automatically.
-         */
         static associate(models) {
-            // define association here
+            Cart.belongsTo(models.User, {
+                targetKey: "id",
+                foreignKey: "user_id",
+            });
+            Cart.hasMany(models.CartItem, {
+                sourceKey: "id",
+                foreignKey: "cart_id",
+            });
+            Cart.hasOne(models.Transaction, {
+                sourceKey: "id",
+                foreignKey: "cart_id",
+            });
+            Cart.hasOne(models.ShippingAddres, {
+                sourceKey: "id",
+                foreignKey: "shipping_id",
+            });
         }
     }
     Cart.init(

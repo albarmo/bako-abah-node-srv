@@ -5,13 +5,19 @@ const { hashPassword } = require("../src/helpers/bcrypt");
 
 module.exports = (sequelize, DataTypes) => {
     class User extends Model {
-        /**
-         * Helper method for defining associations.
-         * This method is not a part of Sequelize lifecycle.
-         * The `models/index` file will call this method automatically.
-         */
         static associate(models) {
-            // define association here
+            User.hasMany(models.Cart, {
+                sourceKey: "id",
+                foreignKey: "user_id",
+            });
+            User.hasMany(models.ShippingAddres, {
+                sourceKey: "id",
+                foreignKey: "user_id",
+            });
+            User.hasMany(models.Transaction, {
+                sourceKey: "id",
+                foreignKey: "user_id",
+            });
         }
     }
     User.init(
