@@ -1,6 +1,6 @@
 "use strict";
 
-const { hashPassword } = require("../helpers/bcrypt");
+const { hashPassword } = require("../src/helpers/bcrypt");
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {

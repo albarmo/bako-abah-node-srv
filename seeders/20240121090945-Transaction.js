@@ -1,7 +1,5 @@
 "use strict";
 
-const { hashPassword } = require("../helpers/bcrypt");
-
 module.exports = {
     up: async (queryInterface, Sequelize) => {
         await queryInterface.bulkInsert(
@@ -14,7 +12,7 @@ module.exports = {
                     amount: 10000,
                     paid_amount: null,
                     paid_at: null,
-                    proof_of_payment: "/PROOF_OF_PAYMENT1705827364133.pdf",
+                    proof_of_payment: null,
                     payment_type: "BANK_TRANSFER",
                     status: "UNPAID",
                     cardholder_name: "Albar Moerhamsa",
