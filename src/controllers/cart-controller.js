@@ -1,4 +1,4 @@
-const { Cart, CartItem } = require("../../models");
+const { Cart, CartItem, Product } = require("../../models");
 const { validate } = require("uuid");
 
 class CartController {
@@ -15,19 +15,54 @@ class CartController {
         } = req.body;
 
         try {
-            const response = await Cart.create({
-                user_id,
-                shipping_id,
-                subtotal,
-                discount,
-                total_weight,
-                grand_total,
-                status,
-                shipping_price,
+            const [userCart, created] = await Cart.findOrCreate({
+                where: { user_id: user_id, status: "CREATED" },
+                defaults: {
+                    user_id,
+                    shipping_id,
+                    subtotal,
+                    discount,
+                    total_weight,
+                    grand_total,
+                    status,
+                    shipping_price,
+                },
             });
-            return res
-                .status(201)
-                .json({ status: 200, message: "OK", data: response });
+            if (created) {
+                return res
+                    .status(201)
+                    .json({
+                        status: 200,
+                        message: "Created User Cart",
+                        data: userCart,
+                    });
+            }
+            return res.status(200).json({
+                status: 200,
+                message: "Cart already exist",
+                data: userCart,
+            });
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    static async getUserCart(req, res, next) {
+        let user_id = req.userData?.id;
+        try {
+            let cart = await Cart.findOne({
+                where: { user_id: user_id, status: "CREATED" },
+            });
+            if (cart) {
+                return res
+                    .status(200)
+                    .json({ status: 200, message: "OK", data: cart });
+            } else {
+                return res.status(500).json({
+                    status: 404,
+                    message: "User has no cart data",
+                });
+            }
         } catch (error) {
             return next(error);
         }
@@ -39,6 +74,10 @@ class CartController {
                 include: {
                     model: CartItem,
                     as: "items",
+                    include: {
+                        model: Product,
+                        as: "product",
+                    },
                 },
             });
             if (data) {
