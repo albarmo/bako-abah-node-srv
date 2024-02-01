@@ -110,7 +110,7 @@ class ProductController {
         }
 
         try {
-            let data = await Product.findAll({
+            let data = await Product.findAndCountAll({
                 ...paramQuerySQL,
                 include: {
                     model: Category,
