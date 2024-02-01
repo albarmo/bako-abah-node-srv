@@ -48,16 +48,37 @@ class ProductController {
 
     static async getProductList(req, res, next) {
         let { filter, sort, page } = req.query;
+
         const paramQuerySQL = {};
         let limit;
         let offset;
 
-        // filtering by category
-        if (filter !== "" && typeof filter !== "undefined") {
+        if (filter?.name !== "" && typeof filter?.name !== "undefined") {
             paramQuerySQL.where = {
-                name: { [Op.iLike]: `%${filter}%` },
+                ...paramQuerySQL.where,
+                name: { [Op.iLike]: `%${filter.name}%` },
             };
         }
+        if (
+            filter?.is_active !== "" &&
+            typeof filter?.is_active !== "undefined"
+        ) {
+            paramQuerySQL.where = {
+                ...paramQuerySQL.where,
+                is_active: { [Op.eq]: filter.is_active },
+            };
+        }
+        if (
+            filter?.category_id !== "" &&
+            typeof filter?.category_id !== "undefined"
+        ) {
+            paramQuerySQL.where = {
+                ...paramQuerySQL.where,
+                category_id: { [Op.eq]: filter.category_id },
+            };
+        }
+
+        console.log(paramQuerySQL);
         // sorting
         if (sort !== "" && typeof sort !== "undefined") {
             let query;
