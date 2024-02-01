@@ -25,8 +25,6 @@ class CategoryController {
         let limit;
         let offset;
 
-        console.log(filter);
-
         // filtering by category
         if (filter !== "" && typeof filter !== "undefined") {
             paramQuerySQL.where = {

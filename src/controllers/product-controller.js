@@ -1,9 +1,98 @@
-const { Product, Category, Sequelize } = require("../../models");
+const {
+    Product,
+    Category,
+    Cart,
+    CartItem,
+    Sequelize,
+} = require("../../models");
 const { validate } = require("uuid");
 const uploader = require("../helpers/uploader");
 const { Op } = Sequelize;
 
 class ProductController {
+    static async addProductToCart(req, res, next) {
+        const user_id = req.userData?.id;
+        const { product_id, quantity } = req.body;
+
+        let product = await Product.findByPk(product_id);
+        const productData = product.dataValues;
+
+        if (productData?.stock < quantity) {
+            return res.status(200).json({
+                status: 200,
+                message: "OK",
+                data: product,
+            });
+        }
+
+        try {
+            const [userCart, created] = await Cart.findOrCreate({
+                where: { user_id: user_id, status: "CREATED" },
+                defaults: {
+                    user_id,
+                    status: "CREATED",
+                },
+            });
+
+            const existUserCart = userCart?.dataValues;
+            const isProductExistInCart = await CartItem.findOne({
+                where: { cart_id: existUserCart?.id, product_id: product_id },
+                include: {
+                    model: Product,
+                    as: "product",
+                },
+            });
+
+            if (isProductExistInCart) {
+                const cart = isProductExistInCart?.dataValues;
+                const product =
+                    isProductExistInCart?.dataValues?.product?.dataValues;
+
+                if (product?.stock < quantity) {
+                    return res.status(201).json({
+                        status: 400,
+                        message: "Product out of stock",
+                        data: `Product stock available is ${product?.stock} item`,
+                    });
+                }
+                const newQty = cart.quantity + quantity;
+                const newSubtotal = newQty * product?.local_price;
+
+                const updateCartQty = await CartItem.update(
+                    { subtotal: newSubtotal, quantity: newQty },
+                    {
+                        where: {
+                            cart_id: existUserCart?.id,
+                            product_id: product_id,
+                        },
+                        returning: true,
+                        plain: true,
+                    }
+                );
+                return res.status(200).json({
+                    status: 200,
+                    message:
+                        "UPDATE Already exist on cart, update cart quantity",
+                    data: updateCartQty,
+                });
+            }
+
+            const createCartItem = await CartItem.create({
+                cart_id: existUserCart?.id,
+                product_id: product_id,
+                subtotal: productData?.local_price * quantity,
+                quantity: quantity,
+            });
+            return res.status(201).json({
+                status: 200,
+                message: "CREATED cart item",
+                data: createCartItem,
+            });
+        } catch (error) {
+            return next(error);
+        }
+    }
+
     static async createProduct(req, res, next) {
         const upload = uploader("PRODUCT_IMAGE").fields([{ name: "image" }]);
         try {
@@ -103,7 +192,7 @@ class ProductController {
                 paramQuerySQL.offset = offset;
             }
         } else {
-            limit = 5;
+            limit = 10;
             offset = 0;
             paramQuerySQL.limit = limit;
             paramQuerySQL.offset = offset;

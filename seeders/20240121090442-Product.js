@@ -1,153 +1,71 @@
 "use strict";
 
+const fs = require("fs");
+const { parse } = require("csv-parse");
+const { v4: uuidv4 } = require("uuid");
+
+async function readFile(filename) {
+    const headers = [
+        "name",
+        "description",
+        "weight",
+        "image",
+        "local_price",
+        "international_prize",
+        "stock",
+        "is_active",
+    ];
+    let records = [];
+    return new Promise((resolve) => {
+        fs.createReadStream("./seeders/product.csv")
+            .pipe(
+                parse({
+                    delimiter: ",",
+                    from_line: 2,
+                })
+            )
+            .on("data", function (row) {
+                const rowData = row[0].split(";");
+                let dataItem = {
+                    id: uuidv4(),
+                    category_id: null,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    stock: 10,
+                    is_active: true,
+                };
+                for (let index = 0; index < rowData.length; index++) {
+                    if (
+                        [
+                            "stock",
+                            "weight",
+                            "local_price",
+                            "international_prize",
+                        ].includes(headers[index])
+                    ) {
+                        dataItem[headers[index]] = +rowData[index] || 0;
+                    } else {
+                        dataItem[headers[index]] = rowData[index];
+                    }
+                }
+
+                dataItem.is_active = true;
+                records.push(dataItem);
+            })
+            .on("end", () => {
+                resolve(records);
+            })
+            .on("error", function (error) {
+                console.log(error.message);
+            });
+    });
+}
+
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkInsert(
-            "Products",
-            [
-                {
-                    id: "8df8dade-3cea-4424-8cf5-e7e86f361ea0",
-                    category_id: null,
-                    name: "Produk 1",
-                    description: "testing description product 1",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:31:41.027Z",
-                    updatedAt: "2024-01-21T08:31:41.027Z",
-                },
-                {
-                    id: "fe8f2fda-c24d-4cf1-9344-4f0ac77c6783",
-                    category_id: null,
-                    name: "Produk 2",
-                    description: "testing description product 1",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:31:47.391Z",
-                    updatedAt: "2024-01-21T08:31:47.391Z",
-                },
-                {
-                    id: "c627bbb2-c275-4ddf-a181-18abe699b8c4",
-                    category_id: null,
-                    name: "Produk 3",
-                    description: "testing description product",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:32:05.262Z",
-                    updatedAt: "2024-01-21T08:32:05.262Z",
-                },
-                {
-                    id: "262301f7-580a-4095-aa61-498484dc1f3b",
-                    category_id: null,
-                    name: "Produk 4",
-                    description: "testing description product",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:32:13.487Z",
-                    updatedAt: "2024-01-21T08:32:13.487Z",
-                },
-                {
-                    id: "5972e6c0-4527-4317-ae51-c23ab57d4ea7",
-                    category_id: null,
-                    name: "Produk 5",
-                    description: "testing description product",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:32:17.064Z",
-                    updatedAt: "2024-01-21T08:32:17.064Z",
-                },
-                {
-                    id: "5c0c9820-f857-4f67-b9b0-3bfe4441124d",
-                    category_id: null,
-                    name: "Produk 6",
-                    description: "testing description product",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:32:20.403Z",
-                    updatedAt: "2024-01-21T08:32:20.403Z",
-                },
-                {
-                    id: "5b0ce58b-9170-4c0b-8886-90f891c1753e",
-                    category_id: null,
-                    name: "Produk 7",
-                    description: "testing description product",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:32:23.735Z",
-                    updatedAt: "2024-01-21T08:32:23.735Z",
-                },
-                {
-                    id: "bf5764b4-403c-4a94-9afa-9bd652af0915",
-                    category_id: null,
-                    name: "Produk 8",
-                    description: "testing description product",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:32:27.537Z",
-                    updatedAt: "2024-01-21T08:32:27.537Z",
-                },
-                {
-                    id: "37394dd0-190d-4d84-8df6-d3bded592b76",
-                    category_id: null,
-                    name: "Produk 9",
-                    description: "testing description product",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:32:31.707Z",
-                    updatedAt: "2024-01-21T08:32:31.707Z",
-                },
-                {
-                    id: "84d786b1-dd08-47f5-8aec-ed6f0a2ee5f6",
-                    category_id: null,
-                    name: "Produk 10",
-                    description: "testing description product",
-                    weight: 100,
-                    image: null,
-                    local_price: 10000,
-                    international_prize: 15000,
-                    stock: 10,
-                    is_active: true,
-                    createdAt: "2024-01-21T08:32:37.078Z",
-                    updatedAt: "2024-01-21T08:32:37.078Z",
-                },
-            ],
-            {}
-        );
+        const recordsFromCsv = await readFile("./seeders/product.csv");
+        console.log(recordsFromCsv);
+        await queryInterface.bulkInsert("Products", recordsFromCsv, {});
     },
 
     down: async (queryInterface, Sequelize) => {

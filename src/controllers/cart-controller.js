@@ -1,10 +1,10 @@
 const {
     Cart,
     User,
-    Store,
     CartItem,
     Product,
     ShippingAddres,
+    sequelize,
 } = require("../../models");
 const { validate } = require("uuid");
 
@@ -57,6 +57,14 @@ class CartController {
         try {
             let cart = await Cart.findOne({
                 where: { user_id: user_id, status: "CREATED" },
+                include: {
+                    model: CartItem,
+                    as: "items",
+                    include: {
+                        model: Product,
+                        as: "product",
+                    },
+                },
             });
             if (cart) {
                 return res
@@ -131,6 +139,42 @@ class CartController {
             }
         } catch (error) {
             return next(error);
+        }
+    }
+
+    static async checkout(req, res, next) {
+        let UserId = req.userData.id;
+        const t = await sequelize.transaction();
+
+        try {
+            const cart = await Cart.findAll(
+                {
+                    where: {
+                        UserId,
+                        status: "unpaid",
+                    },
+                },
+                { transaction: t }
+            );
+
+            for (const item of cart) {
+                const product = await Product.findByPk(item.ProductId);
+
+                if (item.quantity > product.stock) {
+                    throw new Error("Product out of stock");
+                } else {
+                    let newStock = product.stock - item.quantity;
+                    await product.update({ stock: newStock });
+                    await item.update({ status: "waiting-payment" });
+                }
+            }
+            t.afterCommit(() => {
+                return res.status(200).json({ msg: "Checkout Success" });
+            });
+            await t.commit();
+        } catch (error) {
+            await t.rollback();
+            next(error);
         }
     }
 
@@ -225,6 +269,104 @@ class CartController {
             }
         } catch (error) {
             return next(error);
+        }
+    }
+
+    static async checkout(req, res, next) {
+        let user_id = req.userData.id;
+        const t = await sequelize.transaction();
+
+        try {
+            let cart = await Cart.findOne({
+                where: { user_id: user_id, status: "CREATED" },
+                include: {
+                    model: CartItem,
+                    as: "items",
+                },
+            });
+
+            if (!cart) {
+                return res
+                    .status(400)
+                    .json({ status: 400, message: "No cart to checkout" });
+            }
+
+            for (const item of cart?.items) {
+                const product = await Product.findByPk(item.product_id);
+
+                if (item.quantity > product.stock) {
+                    throw new Error("Product out of stock");
+                } else {
+                    let newStock = product.stock - item.quantity;
+                    await product.update({ stock: newStock });
+                    await Cart.update(
+                        {
+                            status: "CHECKOUT",
+                        },
+                        {
+                            where: {
+                                id: cart?.dataValues?.id,
+                            },
+                            returning: true,
+                        }
+                    );
+                }
+            }
+            t.afterCommit(() => {
+                return res
+                    .status(200)
+                    .json({ status: 200, message: "Success checkout cart" });
+            });
+            await t.commit();
+        } catch (error) {
+            await t.rollback();
+            next(error);
+        }
+    }
+
+    static async cancelCheckout(req, res, next) {
+        const UserId = req.userData.id;
+        const CartId = req.params.id;
+        const t = await sequelize.transaction();
+
+        try {
+            const cart = await Cart.findAll(
+                {
+                    where: {
+                        UserId,
+                        status: "CHECKOUT",
+                    },
+                },
+                { transaction: t }
+            );
+
+            if (!cart?.lenght) {
+                try {
+                    for (const item of cart) {
+                        const product = await Product.findByPk(item.ProductId);
+                        let revertStock = product.stock + item.quantity;
+
+                        await product.update({ stock: revertStock });
+                        await item.update({ status: "cannceled" });
+                    }
+                    t.afterCommit(() => {
+                        return res.status(200).json({
+                            status: `sucess cancceled cart ${CartId}`,
+                        });
+                    });
+                } catch (error) {
+                    await t.rollback();
+                    return res.status(500).json({
+                        status: `Error while revert product items stock`,
+                    });
+                }
+
+                await t.commit();
+            } else {
+                return res.status(404).json({ status: `Cart not found` });
+            }
+        } catch (error) {
+            next(error);
         }
     }
 }
