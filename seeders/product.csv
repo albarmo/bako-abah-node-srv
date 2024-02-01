@@ -1,0 +1,79 @@
+﻿name;description;weight;image;local_price;international_price;stock;is_active
+Alting Serolok;tembakau rasa mantab;100;;20000;10000;10;TRUE
+Alting Becak;;;;25000;;10;TRUE
+Alting Kayu;tembakau untuk orang tua;200;;15000;12000;10;TRUE
+Alting Tangan Queen Bee;tembakau untuk anak muda;278;;8000;14000;10;TRUE
+Alting Rollbox Gizeh;tembakau untuk pria karir;376;;;16000;10;TRUE
+Alting Rollbox Mascotte;;;;;;10;TRUE
+Alting Zig-Zag;;;;;;10;TRUE
+Alting Electric Lida;;;;140000;;10;TRUE
+Alting Cigarette Machine;;;;15000;;10;TRUE
+Selongsong;;;;20000;;10;TRUE
+Lem;;;;3000;;10;TRUE
+Korek M 2000;;;;4000;;10;TRUE
+Korek Tokai;;;;3000;;10;TRUE
+Kotak Rokok Plastik Polos;;;;20000;;10;TRUE
+Kotak Rokok Plastik Motif;;;;;;10;TRUE
+Kotak Rokok Dompet;;;;25000;;10;TRUE
+Kotak Rokok Kaleng;;;;25000;;10;TRUE
+Busa Reguler Premium;;;;225000;;10;TRUE
+Busa Mild Premium;;;;256000;;10;TRUE
+Busa Mild Tebal;;;;112000;;10;TRUE
+Busa Bold Premium;;;;167800;;10;TRUE
+Busa Reguler Super;;;;161200;;10;TRUE
+Busa Mild Bolong;;;;85000;;10;TRUE
+Busa Reguler Bolong Non Skin;;;;70000;;10;TRUE
+Busa Reguler Kw;;;;106000;;10;TRUE
+Busa Double Klik Apel & Blackcurrent;;;;235000;;10;TRUE
+Rokok Bintang Samudra;;;;8000;;10;TRUE
+Rokok Rasa Wahyu;;;;10000;;10;TRUE
+Rokok Rotama Herbal;;;;15000;;10;TRUE
+Rokok Rotama Extra;;;;10000;;10;TRUE
+Rokok Rotama Spr;;;;10000;;10;TRUE
+Rokok Rotama Mantap Merah;;;;15000;;10;TRUE
+Rokok Rotama Mantap Coklat;;;;15000;;10;TRUE
+Rokok Rotama Master;;;;15000;;10;TRUE
+Rokok Rave Star;;;;12000;;10;TRUE
+Rokok Jumbo Coklat;;;;15000;;10;TRUE
+Rokok Jumbo Exclusive;;;;15000;;10;TRUE
+Papir Burung Hantu;;;;19500;;10;TRUE
+Papir Kujang;;;;28000;;10;TRUE
+Papir 74;;;;36000;;10;TRUE
+Papir Sw;;;;50000;;10;TRUE
+Papir Buffalo;;;;40000;;10;TRUE
+Papir Naraya;;;;37000;;10;TRUE
+OKJ Mild;;;;14500;;10;TRUE
+OKJ Mild Menthol;;;;14500;;10;TRUE
+OKJ Clas;;;;14500;;10;TRUE
+OKJ LA;;;;14500;;10;TRUE
+OKJ Dunhill;;;;14500;;10;TRUE
+OKJ Magnum;;;;14500;;10;TRUE
+OKJ Super;;;;17000;;10;TRUE
+OKJ Surya;;;;17000;;10;TRUE
+OKJ GF;;;;17000;;10;TRUE
+OKJ Signature;;;;17000;;10;TRUE
+OKJ Exclusive;;;;17000;;10;TRUE
+OKJ 99 Merah;;;;13000;;10;TRUE
+OKJ Wismilak;;;;13000;;10;TRUE
+OKJ Samsu;;;;13000;;10;TRUE
+OKJ Refill;;;;16000;;10;TRUE
+OKJ Pop Esse;;;;15000;;10;TRUE
+OKJ Marlboro Manis;;;;14500;;10;TRUE
+OKJ Marlboro Tawar;;;;14000;;10;TRUE
+OKJ Blank;;;;16500;;10;TRUE
+Cerutu Borobudur Coffee;;;;10000;;10;TRUE
+Cerutu Borobudur Vanilla;;;;;;10;TRUE
+Cerutu Borobudur Mint;;;;;;10;TRUE
+Cerutu Borobudur Apel ;;;;;;10;TRUE
+Cerutu Negreso Fruity;;;;22000;;10;TRUE
+Cerutu Negreso Original;;;;;;10;TRUE
+Cerutu Mundivictor Rum;;;;25000;;10;TRUE
+Cerutu Ramayana Besar;;;;62000;;10;TRUE
+Cerutu Ramayana Kecil;;;;30000;;10;TRUE
+Cerutu Senator Royal;;;;59000;;10;TRUE
+Cerutu Adipati Besar;;;;55800;;10;TRUE
+Cerutu Adipati Kecil;;;;57800;;10;TRUE
+Cengkeh Menjangan;;;;;;10;TRUE
+Cengkeh Kliting;;;;;;10;TRUE
+Cengkeh 55;;;;;;10;TRUE
+Cengkeh Loten;;;;;;10;TRUE

@@ -3,12 +3,12 @@ const cartItemController = require("../controllers/cart-item-controller");
 const { authorization, authentification } = require("../middleware/Auth");
 
 cartItemRouter.use(authentification);
-cartItemRouter.post("/", cartItemController.createCart);
-cartItemRouter.get("/:id", cartItemController.getCartById);
-cartItemRouter.put("/:id", cartItemController.updateCart);
-cartItemRouter.delete("/:id", cartItemController.deleteCart);
+cartItemRouter.post("/", cartItemController.createOrUpdateCartItem);
+cartItemRouter.get("/:id", cartItemController.getCartItemById);
+cartItemRouter.put("/:id", cartItemController.updateCartItem);
+cartItemRouter.delete("/:id", cartItemController.deleteCartItem);
 
 cartItemRouter.use(authorization);
-cartItemRouter.get("/", cartItemController.getAllCart);
+cartItemRouter.get("/", cartItemController.getAllCartItem);
 
 module.exports = cartItemRouter;

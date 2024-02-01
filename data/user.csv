@@ -1,0 +1,6 @@
+﻿id;first_name;last_name;email;phone_number;password;role
+307a1a91-13c2-4d81-9b07-dcfe80ee1556;Michael;Jackson;michael@gmail.com;87627346098;bako123;admin
+1409ee5f-cf02-4258-9e50-1fcaaf83dcda;John;Lennon;John@gmail.conm;87528667807;bako123;admin
+1aaeb9bc-f352-455f-8172-55ad10ec1412;Robert;Plant;robert@gmail.com;85427334690;bako123;customer
+1d286506-1f53-4b15-945d-ec62c2e40816;Paul;Mcartney;paul@gmail.com;83423446378;bako123;customer
+47ab082c-a939-4946-8bb8-144e04374a87;Jimi;Page;jimi@gmail.com;89712345676;bako123;customer

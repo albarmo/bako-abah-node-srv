@@ -4,8 +4,9 @@ const { authorization, authentification } = require("../middleware/Auth");
 
 productRouter.get("/", productController.getProductList);
 productRouter.get("/:id", productController.getProductById);
-
 productRouter.use(authentification);
+productRouter.post("/add-to-cart", productController.addProductToCart);
+
 productRouter.use(authorization);
 productRouter.post("/", productController.createProduct);
 productRouter.put("/:id", productController.updateProduct);

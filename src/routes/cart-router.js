@@ -4,12 +4,13 @@ const { authorization, authentification } = require("../middleware/Auth");
 
 cartRouter.use(authentification);
 cartRouter.post("/", cartController.createCart);
-cartRouter.get("/user", cartController.getAllCart);
+cartRouter.post("/checkout", cartController.checkout);
+cartRouter.get("/user", cartController.getUserCart);
 cartRouter.get("/:id", cartController.getCartById);
 cartRouter.put("/:id", cartController.updateCart);
 cartRouter.delete("/:id", cartController.deleteCart);
 
-cartRouter.get("/", cartController.getAllCart);
 cartRouter.use(authorization);
+cartRouter.get("/", cartController.getAllCart);
 
 module.exports = cartRouter;

@@ -1,0 +1,6 @@
+﻿id;user_id;cart_id;paid_amount;paid_at;proof_of_payment;cardholder_name;payment_type;store_in_charge;expired_at;status
+307a1a91-13c2-4d81-9b07-dcfe80ee1556;307a1a91-13c2-4d81-9b07-dcfe80ee1556;0d83bca4-5cd1-434e-9ec0-9550d26489c0;12000;20/01/24;null;albar;bank transfer;4ec80883-f818-4909-a34b-bf7e4b8a1253;20/01/24;created
+1409ee5f-cf02-4258-9e50-1fcaaf83dcda;1409ee5f-cf02-4258-9e50-1fcaaf83dcda;cc337dba-e7ba-478a-8189-348f003d7d01;13000;25/02/24;null;eky;cash on delivery;3212aac8-903b-47c1-9e56-1557c54c08ab;25/02/24;checkout
+1aaeb9bc-f352-455f-8172-55ad10ec1412;1aaeb9bc-f352-455f-8172-55ad10ec1412;702a24b1-430b-44d6-9f99-86ed2f97d0d0;18000;10/02/24;null;dugong;bank transfer;7d3ac979-24ee-4778-b658-3675b8b322df;10/02/24;checkout
+1d286506-1f53-4b15-945d-ec62c2e40816;1d286506-1f53-4b15-945d-ec62c2e40816;f6dac949-4339-488e-a8e9-509b253f1827;10000;18/03/24;null;idir;cash on delivery;61d19459-5838-4a5f-87bd-adbc28285370;18/03/24;completed
+47ab082c-a939-4946-8bb8-144e04374a87;47ab082c-a939-4946-8bb8-144e04374a87;26d1f1b7-ddf5-4e35-bf7b-0e17ae3cc465;12200;13/02/24;null;mame;bank transfer;89e4490c-d298-4270-93f5-08a23757bd81;13/02/24;completed
