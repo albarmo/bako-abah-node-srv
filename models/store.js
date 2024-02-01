@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
                 targetKey: "id",
                 foreignKey: "id",
             });
+            Store.hasMany(models.Cart, {
+                sourceKey: "id",
+                foreignKey: "id",
+            });
         }
     }
     Store.init(

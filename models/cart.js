@@ -8,15 +8,22 @@ module.exports = (sequelize, DataTypes) => {
             Cart.belongsTo(models.User, {
                 targetKey: "id",
                 foreignKey: "user_id",
+                as: "user",
+            });
+            Cart.belongsTo(models.Store, {
+                targetKey: "id",
+                foreignKey: "user_id",
+                as: "store",
             });
             Cart.hasMany(models.CartItem, {
                 as: "items",
                 sourceKey: "id",
                 foreignKey: "cart_id",
             });
-            Cart.hasOne(models.ShippingAddres, {
+            Cart.belongsTo(models.ShippingAddres, {
                 sourceKey: "id",
-                foreignKey: "id",
+                foreignKey: "shipping_id",
+                as: "address",
             });
             Cart.hasMany(models.Transaction, {
                 as: "origin",

@@ -1,4 +1,11 @@
-const { Cart, CartItem, Product } = require("../../models");
+const {
+    Cart,
+    User,
+    Store,
+    CartItem,
+    Product,
+    ShippingAddres,
+} = require("../../models");
 const { validate } = require("uuid");
 
 class CartController {
@@ -29,13 +36,11 @@ class CartController {
                 },
             });
             if (created) {
-                return res
-                    .status(201)
-                    .json({
-                        status: 200,
-                        message: "Created User Cart",
-                        data: userCart,
-                    });
+                return res.status(201).json({
+                    status: 200,
+                    message: "Created User Cart",
+                    data: userCart,
+                });
             }
             return res.status(200).json({
                 status: 200,
@@ -71,14 +76,24 @@ class CartController {
     static async getAllCart(req, res, next) {
         try {
             let data = await Cart.findAll({
-                include: {
-                    model: CartItem,
-                    as: "items",
-                    include: {
-                        model: Product,
-                        as: "product",
+                include: [
+                    {
+                        model: CartItem,
+                        as: "items",
+                        include: {
+                            model: Product,
+                            as: "product",
+                        },
                     },
-                },
+                    {
+                        model: User,
+                        as: "user",
+                    },
+                    {
+                        model: ShippingAddres,
+                        as: "address",
+                    },
+                ],
             });
             if (data) {
                 return res

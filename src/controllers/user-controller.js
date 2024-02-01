@@ -65,9 +65,14 @@ class UserController {
         try {
             let data = await User.findAll(paramQuerySQL);
             if (data) {
-                return res.status(200).json({ users: data });
+                return res
+                    .status(200)
+                    .json({ status: 200, message: "OK", data });
             } else {
-                return res.status(500).json({ message: "user table empty" });
+                return res.status(404).json({
+                    status: 404,
+                    message: "User Not Found",
+                });
             }
         } catch (error) {
             next(error);

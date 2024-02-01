@@ -10,10 +10,9 @@ module.exports = (sequelize, DataTypes) => {
                 targetKey: "id",
                 foreignKey: "user_id",
             });
-            ShippingAddres.belongsToMany(models.Cart, {
+            ShippingAddres.hasMany(models.Cart, {
                 targetKey: "id",
                 foreignKey: "id",
-                through: "shipping_id",
             });
         }
     }
