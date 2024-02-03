@@ -3,7 +3,7 @@
         "username": "postgres",
         "password": "postgres",
         "database": "dev-bako-srv",
-        "host": "127.0.0.1",
+        "host": "13.212.149.238",
         "dialect": "postgres"
     },
     "test": {
