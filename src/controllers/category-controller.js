@@ -92,7 +92,13 @@ class CategoryController {
                 .json({ status: 400, message: "Invalid UUID Format" });
         }
 
-        let data = await Category.findOne({ where: { id: id } });
+        let data = await Category.findOne({
+            where: { id: id },
+            include: {
+                model: Product,
+                as: "products",
+            },
+        });
         try {
             if (data) {
                 return res
