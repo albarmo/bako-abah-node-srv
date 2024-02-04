@@ -10,9 +10,28 @@ class UserController {
         let data = await User.findOne({ where: { id: id } });
         try {
             if (data) {
-                return res.status(200).json({ users: data });
+                return res.status(200).json({ status: 200, user: data });
             } else {
-                return res.status(500).json({ message: "not an user!" });
+                return res.status(404).json({
+                    status: 404,
+                    message: "Failed get current user data",
+                });
+            }
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static async getUserById(req, res, next) {
+        const { id } = req.params;
+        let data = await User.findByPk(id);
+        try {
+            if (data) {
+                return res.status(200).json({ status: 200, users: data });
+            } else {
+                return res
+                    .status(404)
+                    .json({ status: 404, message: "not an user!" });
             }
         } catch (error) {
             next(error);
