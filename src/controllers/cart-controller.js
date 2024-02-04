@@ -126,7 +126,27 @@ class CartController {
                 .json({ status: 400, message: "Invalid UUID Format" });
         }
 
-        let data = await Cart.findOne({ where: { id: id } });
+        let data = await Cart.findOne({
+            where: { id: id },
+            include: [
+                {
+                    model: CartItem,
+                    as: "items",
+                    include: {
+                        model: Product,
+                        as: "product",
+                    },
+                },
+                {
+                    model: User,
+                    as: "user",
+                },
+                {
+                    model: ShippingAddres,
+                    as: "address",
+                },
+            ],
+        });
         try {
             if (data) {
                 return res
