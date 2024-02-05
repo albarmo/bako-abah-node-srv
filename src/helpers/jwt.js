@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
 
 const generateAccessToken = (payload) => {
-    return jwt.sign(payload, "Mb4HDu90ngM4nt4b!", { expiresIn: "7d" });
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
 };
 
 const verifyToken = (accessToken) => {
-    return jwt.verify(accessToken, "Mb4HDu90ngM4nt4b!");
+    return jwt.verify(accessToken, process.env.JWT_SECRET);
 };
 
 module.exports = {
