@@ -1,6 +1,15 @@
 const { Transaction, Cart, Store } = require("../../models");
 const { validate } = require("uuid");
-const uploader = require("../helpers/uploader");
+
+const fs = require("fs");
+const uploader = require("../helpers/uploader-s3");
+const AWS = require("aws-sdk");
+AWS.config.update({
+    accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
+    region: process.env.AWS_S3_REGION,
+});
+const s3 = new AWS.S3();
 
 class TransactionController {
     static async createTransaction(req, res, next) {
@@ -185,14 +194,16 @@ class TransactionController {
 
     static async uploadProofOfPayment(req, res, next) {
         const { id } = req.params;
-        const upload = uploader("PROOF_OF_PAYMENT").fields([
-            { name: "proof_of_payment" },
-        ]);
         if (!validate(id)) {
             return res
                 .status(400)
                 .json({ status: 400, message: "Invalid UUID Format" });
         }
+
+        const multerUpload = uploader("PROOF_OF_PAYMENT_").fields([
+            { name: "proof_of_payment" },
+        ]);
+
         try {
             const storeData = await Transaction.findOne({
                 where: {
@@ -203,32 +214,55 @@ class TransactionController {
             });
 
             if (storeData) {
-                upload(req, res, (err) => {
+                multerUpload(req, res, (err) => {
                     if (err) {
                         return res.status(500).json({ msg: err });
                     }
                     const { proof_of_payment } = req.files;
-                    const imagePath = proof_of_payment
-                        ? "/" + proof_of_payment[0].filename
-                        : null;
 
-                    Transaction.update(
-                        {
-                            proof_of_payment: imagePath,
-                        },
-                        {
-                            where: {
-                                id: id,
-                            },
-                            returning: true,
+                    let path = proof_of_payment[0].path;
+                    const fileStream = fs.createReadStream(path);
+
+                    var params = {
+                        Bucket: process.env.BUCKET_NAME,
+                        Key: `${proof_of_payment[0].originalname}`,
+                        Body: fileStream,
+                        ACL: "public-read",
+                        ContentType: proof_of_payment[0].mimetype,
+                        ContentDisposition: "inline",
+                    };
+
+                    s3.upload(params, (err, data) => {
+                        if (err) {
+                            return res.status(500).json({
+                                status: 500,
+                                message: err,
+                            });
                         }
-                    )
-                        .then((data) => {
-                            return res.status(200).json({ data });
-                        })
-                        .catch((error) => {
-                            return res.status(500).json({ message: error });
-                        });
+                        if (data) {
+                            fs.unlinkSync(path);
+                            const objectS3Url = data.Location;
+                            Transaction.update(
+                                {
+                                    proof_of_payment: objectS3Url,
+                                },
+                                {
+                                    where: {
+                                        id: id,
+                                    },
+                                    returning: true,
+                                }
+                            )
+                                .then((data) => {
+                                    return res.status(200).json({ data });
+                                })
+                                .catch((error) => {
+                                    return res
+                                        .status(500)
+                                        .json({ message: error });
+                                });
+                        }
+                    });
                 });
             } else if (!storeData) {
                 return res

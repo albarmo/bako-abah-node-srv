@@ -6,8 +6,17 @@ const {
     Sequelize,
 } = require("../../models");
 const { validate } = require("uuid");
-const uploader = require("../helpers/uploader");
 const { Op } = Sequelize;
+
+const fs = require("fs");
+const uploader = require("../helpers/uploader-s3");
+const AWS = require("aws-sdk");
+AWS.config.update({
+    accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
+    region: process.env.AWS_S3_REGION,
+});
+const s3 = new AWS.S3();
 
 class ProductController {
     static async addProductToCart(req, res, next) {
@@ -94,41 +103,64 @@ class ProductController {
     }
 
     static async createProduct(req, res, next) {
-        const upload = uploader("PRODUCT_IMAGE").fields([{ name: "image" }]);
+        const multerUpload = uploader("PRODUCT_").fields([{ name: "image" }]);
         try {
-            upload(req, res, (err) => {
+            multerUpload(req, res, (err) => {
                 if (err) {
                     return res.status(500).json({ msg: err });
                 }
                 const { image } = req.files;
-                const imagePath = image ? "/" + image[0].filename : null;
 
-                let inputData = {
-                    category_id: req.body.category_id || null,
-                    name: req.body.name,
-                    description: req.body.description,
-                    image: imagePath,
-                    local_price: req.body.local_price,
-                    international_prize: req.body.international_prize,
-                    stock: req.body.stock,
-                    weight: req.body.weight,
-                    is_active: req.body.is_active,
+                let path = image[0].path;
+                const fileStream = fs.createReadStream(path);
+
+                var params = {
+                    Bucket: process.env.BUCKET_NAME,
+                    Key: `${image[0].originalname}`,
+                    Body: fileStream,
+                    ACL: "public-read",
+                    ContentType: "image/jpeg",
                 };
 
-                Product.create(inputData)
-                    .then((data) => {
-                        return res.status(201).json({
-                            status: 200,
-                            message: "OK",
-                            data: data,
-                        });
-                    })
-                    .catch((error) => {
+                s3.upload(params, (err, data) => {
+                    if (err) {
                         return res.status(500).json({
                             status: 500,
-                            message: error,
+                            message: err,
                         });
-                    });
+                    }
+                    if (data) {
+                        fs.unlinkSync(path);
+                        const objectS3Url = data.Location;
+
+                        let inputData = {
+                            category_id: req.body.category_id || null,
+                            name: req.body.name,
+                            description: req.body.description,
+                            image: objectS3Url,
+                            local_price: req.body.local_price,
+                            international_prize: req.body.international_prize,
+                            stock: req.body.stock,
+                            weight: req.body.weight,
+                            is_active: req.body.is_active,
+                        };
+
+                        Product.create(inputData)
+                            .then((data) => {
+                                return res.status(201).json({
+                                    status: 200,
+                                    message: "OK",
+                                    data: data,
+                                });
+                            })
+                            .catch((error) => {
+                                return res.status(500).json({
+                                    status: 500,
+                                    message: error,
+                                });
+                            });
+                    }
+                });
             });
         } catch (error) {
             return next(error);
@@ -167,7 +199,6 @@ class ProductController {
             };
         }
 
-        console.log(paramQuerySQL);
         // sorting
         if (sort !== "" && typeof sort !== "undefined") {
             let query;
@@ -248,14 +279,15 @@ class ProductController {
 
     static async updateProduct(req, res, next) {
         const { id } = req.params;
-        const upload = uploader("PRODUCT_IMAGE").fields([{ name: "image" }]);
+        const multerUpload = uploader("PRODUCT_").fields([{ name: "image" }]);
         if (!validate(id)) {
             return res
                 .status(400)
                 .json({ status: 400, message: "Invalid UUID Format" });
         }
+
         try {
-            const storeData = await Product.findOne({
+            const product = await Product.findOne({
                 where: {
                     id: id,
                 },
@@ -263,38 +295,64 @@ class ProductController {
                 plain: true,
             });
 
-            if (storeData) {
-                upload(req, res, (err) => {
+            if (product) {
+                multerUpload(req, res, (err) => {
                     if (err) {
                         return res.status(500).json({ msg: err });
                     }
                     const { image } = req.files;
-                    const imagePath = image ? "/" + image[0].filename : null;
 
-                    let inputData = {
-                        category_id: req.body.category_id || null,
-                        name: req.body.name,
-                        description: req.body.description,
-                        image: imagePath,
-                        local_price: req.body.local_price,
-                        international_prize: req.body.international_prize,
-                        stock: req.body.stock,
-                        weight: req.body.weight,
-                        is_active: req.body.is_active,
+                    let path = image[0].path;
+                    const fileStream = fs.createReadStream(path);
+
+                    var params = {
+                        Bucket: process.env.BUCKET_NAME,
+                        Key: `${image[0].originalname}`,
+                        Body: fileStream,
+                        ACL: "public-read",
+                        ContentType: "image/jpeg",
                     };
 
-                    Product.update(inputData, {
-                        where: {
-                            id: id,
-                        },
-                        returning: true,
-                    })
-                        .then((data) => {
-                            return res.status(200).json({ data });
-                        })
-                        .catch((error) => {
-                            return res.status(500).json({ message: error });
-                        });
+                    s3.upload(params, (err, data) => {
+                        if (err) {
+                            return res.status(500).json({
+                                status: 500,
+                                message: err,
+                            });
+                        }
+                        if (data) {
+                            fs.unlinkSync(path);
+                            const objectS3Url = data.Location;
+
+                            let inputData = {
+                                category_id: req.body.category_id || null,
+                                name: req.body.name,
+                                description: req.body.description,
+                                image: objectS3Url,
+                                local_price: req.body.local_price,
+                                international_prize:
+                                    req.body.international_prize,
+                                stock: req.body.stock,
+                                weight: req.body.weight,
+                                is_active: req.body.is_active,
+                            };
+
+                            Product.update(inputData, {
+                                where: {
+                                    id: id,
+                                },
+                                returning: true,
+                            })
+                                .then((data) => {
+                                    return res.status(200).json({ data });
+                                })
+                                .catch((error) => {
+                                    return res
+                                        .status(500)
+                                        .json({ message: error });
+                                });
+                        }
+                    });
                 });
             } else if (!storeData) {
                 return res
