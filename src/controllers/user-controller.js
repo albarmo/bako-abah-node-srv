@@ -1,5 +1,5 @@
-const { User, Sequelize } = require("../../models");
-
+const {User, Sequelize} = require( "../../models" );
+const { Op } = Sequelize;
 const { validate } = require("uuid");
 const { comparePassword } = require("../helpers/bcrypt");
 const { generateAccessToken } = require("../helpers/jwt");
@@ -39,18 +39,27 @@ class UserController {
     }
 
     static async getUserList(req, res, next) {
-        let { role, sort, page } = req.query;
+        let { filter, sort, page } = req.query;
         const paramQuerySQL = {};
         let limit;
         let offset;
-
-        // filtering
-        if (role !== "" && typeof role !== "undefined") {
+      
+        if (
+            filter?.role !== "" &&
+            typeof filter?.role !== "undefined"
+        ) {
             paramQuerySQL.where = {
-                role: role,
+                ...paramQuerySQL.where,
+                role: { [Op.eq]: filter.role },
             };
         }
-
+        if (filter?.email !== "" && typeof filter?.email !== "undefined") {
+            paramQuerySQL.where = {
+                ...paramQuerySQL.where,
+                email: { [Op.iLike]: `%${filter.email}%` },
+            };
+        }
+       
         // sorting
         if (sort !== "" && typeof sort !== "undefined") {
             let query;
@@ -59,30 +68,29 @@ class UserController {
             } else {
                 query = [[sort.replace("-", ""), "DESC"]];
             }
-
             paramQuerySQL.order = query;
         }
 
         // pagination
-        if (page !== "" && typeof page !== "undefined") {
-            if (page.size !== "" && typeof page.size !== "undefined") {
-                limit = page.size;
-                paramQuerySQL.limit = limit;
-            }
-
-            if (page.number !== "" && typeof page.number !== "undefined") {
-                offset = page.number * limit - limit;
-                paramQuerySQL.offset = offset;
-            }
-        } else {
-            limit = 5;
-            offset = 0;
+         if (page?.size !== "" && typeof page?.size !== "undefined") {
+            limit = page?.size;
             paramQuerySQL.limit = limit;
+        } else{
+            limit = 10;
+            paramQuerySQL.limit = limit;
+         }
+        
+        if (page?.number !== "" && typeof page?.number !== "undefined") {
+            offset = page?.number * limit - limit;
+            paramQuerySQL.offset = offset;
+        } else {
+            offset = 0;
             paramQuerySQL.offset = offset;
         }
 
+
         try {
-            let data = await User.findAll(paramQuerySQL);
+            let data = await User.findAndCountAll(paramQuerySQL);
             if (data) {
                 return res
                     .status(200)

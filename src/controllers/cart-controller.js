@@ -5,8 +5,10 @@ const {
     Product,
     ShippingAddres,
     sequelize,
+    Sequelize
 } = require("../../models");
-const { validate } = require("uuid");
+const {validate} = require( "uuid" );
+const { Op } = Sequelize;
 
 class CartController {
     static async createCart(req, res, next) {
@@ -81,9 +83,54 @@ class CartController {
         }
     }
 
-    static async getAllCart(req, res, next) {
+    static async getAllCart ( req, res, next )
+    {
+        let { filter, sort, page } = req.query;
+        const paramQuerySQL = {};
+        let limit;
+        let offset;
+      
+        if (
+            filter?.status !== "" &&
+            typeof filter?.status !== "undefined"
+        ) {
+            paramQuerySQL.where = {
+                ...paramQuerySQL.where,
+                status: { [Op.eq]: filter.status },
+            };
+        }
+       
+        // sorting
+        if (sort !== "" && typeof sort !== "undefined") {
+            let query;
+            if (sort.charAt(0) !== "-") {
+                query = [[sort, "ASC"]];
+            } else {
+                query = [[sort.replace("-", ""), "DESC"]];
+            }
+            paramQuerySQL.order = query;
+        }
+
+        // pagination
+         if (page?.size !== "" && typeof page?.size !== "undefined") {
+            limit = page?.size;
+            paramQuerySQL.limit = limit;
+        } else{
+            limit = 10;
+            paramQuerySQL.limit = limit;
+         }
+        
+        if (page?.number !== "" && typeof page?.number !== "undefined") {
+            offset = page?.number * limit - limit;
+            paramQuerySQL.offset = offset;
+        } else {
+            offset = 0;
+            paramQuerySQL.offset = offset;
+        }
+
         try {
-            let data = await Cart.findAll({
+            let data = await Cart.findAndCountAll( {
+                ...paramQuerySQL,
                 include: [
                     {
                         model: CartItem,

@@ -1,10 +1,61 @@
-const { Store } = require("../../models");
-const { validate } = require("uuid");
+const { Store, Sequelize } = require("../../models");
+const {validate} = require( "uuid" );
+const { Op } = Sequelize;
 
 class StoreController {
-    static async getStoreList(req, res, next) {
+    static async getStoreList ( req, res, next ){
+        let { filter, sort, page } = req.query;
+        const paramQuerySQL = {};
+        let limit;
+        let offset;
+
+        if (filter?.name !== "" && typeof filter?.name !== "undefined") {
+            paramQuerySQL.where = {
+                ...paramQuerySQL.where,
+                name: { [Op.iLike]: `%${filter.name}%` },
+            };
+        }
+
+        if (
+            filter?.is_active !== "" &&
+            typeof filter?.is_active !== "undefined"
+        ) {
+            paramQuerySQL.where = {
+                ...paramQuerySQL.where,
+                is_active: { [Op.eq]: filter.is_active },
+            };
+        }
+       
+        // sorting
+        if (sort !== "" && typeof sort !== "undefined") {
+            let query;
+            if (sort.charAt(0) !== "-") {
+                query = [[sort, "ASC"]];
+            } else {
+                query = [[sort.replace("-", ""), "DESC"]];
+            }
+            paramQuerySQL.order = query;
+        }
+
+        // pagination
+         if (page?.size !== "" && typeof page?.size !== "undefined") {
+            limit = page?.size;
+            paramQuerySQL.limit = limit;
+        } else{
+            limit = 10;
+            paramQuerySQL.limit = limit;
+         }
+        
+        if (page?.number !== "" && typeof page?.number !== "undefined") {
+            offset = page?.number * limit - limit;
+            paramQuerySQL.offset = offset;
+        } else {
+            offset = 0;
+            paramQuerySQL.offset = offset;
+        }
+
         try {
-            let data = await Store.findAll();
+            let data = await Store.findAndCountAll({...paramQuerySQL});
             if (data) {
                 return res
                     .status(200)

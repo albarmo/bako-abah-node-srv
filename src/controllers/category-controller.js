@@ -20,17 +20,28 @@ class CategoryController {
     }
 
     static async getCategoryList(req, res, next) {
-        let { filter, sort, page } = req.query;
+       let { filter, sort, page } = req.query;
+
         const paramQuerySQL = {};
         let limit;
         let offset;
 
-        // filtering by category
-        if (filter !== "" && typeof filter !== "undefined") {
+        if (filter?.name !== "" && typeof filter?.name !== "undefined") {
             paramQuerySQL.where = {
-                name: { [Op.iLike]: `%${filter}%` },
+                ...paramQuerySQL.where,
+                name: { [Op.iLike]: `%${filter.name}%` },
             };
         }
+        if (
+            filter?.is_active !== "" &&
+            typeof filter?.is_active !== "undefined"
+        ) {
+            paramQuerySQL.where = {
+                ...paramQuerySQL.where,
+                is_active: { [Op.eq]: filter.is_active },
+            };
+        }
+       
         // sorting
         if (sort !== "" && typeof sort !== "undefined") {
             let query;
@@ -44,25 +55,24 @@ class CategoryController {
         }
 
         // pagination
-        if (page !== "" && typeof page !== "undefined") {
-            if (page.size !== "" && typeof page.size !== "undefined") {
-                limit = page.size;
-                paramQuerySQL.limit = limit;
-            }
-
-            if (page.number !== "" && typeof page.number !== "undefined") {
-                offset = page.number * limit - limit;
-                paramQuerySQL.offset = offset;
-            }
-        } else {
-            limit = 5;
-            offset = 0;
+         if (page?.size !== "" && typeof page?.size !== "undefined") {
+            limit = page?.size;
             paramQuerySQL.limit = limit;
+        } else{
+            limit = 10;
+            paramQuerySQL.limit = limit;
+         }
+        
+        if (page?.number !== "" && typeof page?.number !== "undefined") {
+            offset = page?.number * limit - limit;
+            paramQuerySQL.offset = offset;
+        } else {
+            offset = 0;
             paramQuerySQL.offset = offset;
         }
 
         try {
-            let data = await Category.findAll({
+            let data = await Category.findAndCountAll({
                 ...paramQuerySQL,
                 include: {
                     model: Product,
