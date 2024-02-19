@@ -64,7 +64,6 @@ async function readFile(filename) {
 module.exports = {
     up: async (queryInterface, Sequelize) => {
         const recordsFromCsv = await readFile("./seeders/product.csv");
-        console.log(recordsFromCsv);
         await queryInterface.bulkInsert("Products", recordsFromCsv, {});
     },
 

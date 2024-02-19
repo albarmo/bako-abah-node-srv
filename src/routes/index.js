@@ -6,8 +6,10 @@ const productRouter = require("./product-router");
 const shippingAddressRouter = require("./shipping-address-router");
 const cartRouter = require("./cart-router");
 const cartItemRouter = require("./cart-item-router");
-const transactionRouter = require("./transaction-router");
+const transactionRouter = require( "./transaction-router" );
+const rateLimit = require('../middleware/ratelimit')
 
+router.use(rateLimit)
 router.use("/user", userRouter);
 router.use("/store", storeRouter);
 router.use("/category", categoryRouter);
